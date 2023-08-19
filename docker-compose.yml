@@ -1,19 +1,23 @@
-version: "3.8"
+version: "3.9"
 services:
   dev-postgres:
     image: postgres:15.1-alpine
     ports:
       - 5434:5432
     environment:
-      POSTGRES_USER: sasakiti
-      POSTGRES_PASSWORD: sasakiti
+      POSTGRES_USER: udemy
+      POSTGRES_PASSWORD: udemy
       POSTGRES_DB: udemy
     restart: always
     networks:
       - lesson
-    volumes:
-      - type: volume
-        source: udemy-postgres-data
-        target: /var/lib/postgresql/data
+    # volumes:
+    #   - type: volume
+    #     source: udemy-postgres-data
+    #     target: /var/lib/postgresql/data
 networks:
   lesson:
+
+# volumes:
+#   udemy-postgres-data:
+

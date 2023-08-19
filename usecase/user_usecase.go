@@ -3,6 +3,7 @@ package usecase
 import (
 	"go-rest-api/model"
 	"go-rest-api/repository"
+	"go-rest-api/validator"
 	"os"
 	"time"
 
@@ -17,13 +18,17 @@ type IUserUseCase interface {
 
 type userUseCase struct {
 	ur repository.IUserRepository
+	uv validator.IUserValidator
 }
 
-func NewUserUseCase(ur repository.IUserRepository) IUserUseCase {
-	return &userUseCase{ur}
+func NewUserUseCase(ur repository.IUserRepository, uv validator.IUserValidator) IUserUseCase {
+	return &userUseCase{ur, uv}
 }
 
 func (uu *userUseCase) SignUp(user model.User) (model.UserResponse, error) {
+	if err := uu.uv.UserValidate(user); err != nil {
+		return model.UserResponse{}, err
+	}
 	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
 	if err != nil {
 		return model.UserResponse{}, err
@@ -37,6 +42,9 @@ func (uu *userUseCase) SignUp(user model.User) (model.UserResponse, error) {
 }
 
 func (uu *userUseCase) LogIn(user model.User) (string, error) {
+	if err := uu.uv.UserValidate(user); err != nil {
+		return "", err
+	}
 	storedUser := model.User{}
 	if err := uu.ur.GetUserByEmail(&storedUser, user.Email); err != nil {
 		return "", err
