@@ -11,10 +11,10 @@ services:
     restart: always
     networks:
       - lesson
-    # volumes:
-    #   - type: volume
-    #     source: udemy-postgres-data
-    #     target: /var/lib/postgresql/data
+    volumes:
+      - type: volume
+        source: udemy-postgres-data
+        target: /var/lib/postgresql/data
 networks:
   lesson:
 
