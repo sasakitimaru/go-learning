@@ -19,17 +19,31 @@ type IUserUseCase interface {
 type userUseCase struct {
 	ur repository.IUserRepository
 	uv validator.IUserValidator
+	ph PasswordHasher
 }
 
-func NewUserUseCase(ur repository.IUserRepository, uv validator.IUserValidator) IUserUseCase {
-	return &userUseCase{ur, uv}
+type PasswordHasher interface {
+	GenerateFromPassword(password []byte, cost int) ([]byte, error)
+}
+
+type BycryptPasswordHasher struct{}
+
+func (b *BycryptPasswordHasher) GenerateFromPassword(password []byte, cost int) ([]byte, error) {
+	return bcrypt.GenerateFromPassword(password, cost)
+}
+
+func NewUserUseCase(ur repository.IUserRepository, uv validator.IUserValidator, ph PasswordHasher) IUserUseCase {
+	if ph == nil {
+		ph = &BycryptPasswordHasher{}
+	}
+	return &userUseCase{ur, uv, ph}
 }
 
 func (uu *userUseCase) SignUp(user model.User) (model.UserResponse, error) {
 	if err := uu.uv.UserValidate(user); err != nil {
 		return model.UserResponse{}, err
 	}
-	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
+	hash, err := uu.ph.GenerateFromPassword([]byte(user.Password), 10)
 	if err != nil {
 		return model.UserResponse{}, err
 	}

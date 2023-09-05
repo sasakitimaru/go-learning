@@ -15,7 +15,7 @@ func main() {
 	taskValidator := validator.NewTaskValidator()
 	userRepository := repository.NewUserRepository(dbConn)
 	taskRepository := repository.NewTaskRepository(dbConn)
-	userUsecase := usecase.NewUserUseCase(userRepository, userValidator)
+	userUsecase := usecase.NewUserUseCase(userRepository, userValidator, nil)
 	taskUsecase := usecase.NewTaskUseCase(taskRepository, taskValidator)
 	userController := controller.NewUserController(userUsecase)
 	taskController := controller.NewTaskController(taskUsecase)
